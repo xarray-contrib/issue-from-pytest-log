@@ -1,0 +1,8 @@
+name: 'issue-from-pytest-log'
+description: 'Create an issue for failed tests from a pytest-reportlog file'
+inputs: {}
+outputs: {}
+
+runs:
+  using: "composite"
+  steps: {}
