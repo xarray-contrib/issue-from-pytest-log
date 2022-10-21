@@ -2,7 +2,7 @@ name: Create Issue From pytest log
 description: >-
   Create an issue for failed tests from a pytest-reportlog file.
 inputs:
-  log_path:
+  log-path:
     description: >-
       The path to the log file
     required: true
