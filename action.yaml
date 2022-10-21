@@ -7,6 +7,9 @@ inputs:
       The path to the log file
     required: true
 outputs: {}
+branding:
+  color: 'red'
+  icon: 'alert-triangle'
 
 runs:
   using: composite
