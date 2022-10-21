@@ -22,7 +22,7 @@ jobs:
 
     ...
 
-    - uses: xarray-contrib/issue-from-pytest-log@version
+    - uses: xarray-contrib/issue-from-pytest-log@main
       if: |
         failure()
         && ...
