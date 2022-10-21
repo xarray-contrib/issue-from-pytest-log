@@ -19,7 +19,7 @@ runs:
     - name: produce the issue body
       shell: bash
       run: |
-        python $GITHUB_ACTION_PATH/parse_logs.py ${{ inputs.log_path }}
+        python $GITHUB_ACTION_PATH/parse_logs.py ${{ inputs.log-path }}
     - name: create the issue
       uses: actions/github-script@v6
       with:
