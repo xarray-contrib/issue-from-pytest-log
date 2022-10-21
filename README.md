@@ -9,12 +9,23 @@ To use the `issue-from-pytest-log` action in workflows, simply add a new step:
 jobs:
   my-job:
     ...
+    strategy:
+      fail-fast: false
+      ...
+
+    ...
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        cache: pip
+
+    ...
 
     - uses: xarray-contrib/issue-from-pytest-log@version
       if: |
         failure()
-        && github.event_name == 'schedule'
         && ...
       with:
-        log_path: pytest-log.jsonl
+        log-path: pytest-log.jsonl
 ```
