@@ -1,6 +1,6 @@
 # issue-from-pytest-log
 
-Create an issue for failed tests from a pytest-reportlog file
+Create or update an issue for failed tests from a pytest-reportlog file.
 
 ## Usage
 
@@ -10,7 +10,11 @@ jobs:
   my-job:
     ...
 
-    - uses: keewis/issue-from-pytest-log@version
+    - uses: xarray-contrib/issue-from-pytest-log@version
+      if: |
+        failure()
+        && github.event_name == 'schedule'
+        && ...
       with:
-        ...
+        log_path: pytest-log.jsonl
 ```
