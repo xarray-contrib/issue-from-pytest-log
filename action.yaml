@@ -6,6 +6,16 @@ inputs:
     description: >-
       The path to the log file
     required: true
+  issue-title:
+    description: >-
+      Title of issue being created or updated
+    required: false
+    default: "⚠️ Nightly upstream-dev CI failed ⚠️"
+  issue-label:
+    description: >-
+      Labels to apply to issue
+    required: false
+    default: "CI"
 outputs: {}
 branding:
   color: 'red'
@@ -30,7 +40,7 @@ runs:
         script: |
           const fs = require('fs');
           const pytest_logs = fs.readFileSync('pytest-logs.txt', 'utf8');
-          const title = "⚠️ Nightly upstream-dev CI failed ⚠️"
+          const title = ${{ inputs.issue-title }}
           const workflow_url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
           const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`
 
@@ -52,7 +62,7 @@ runs:
           const variables = {
             owner: context.repo.owner,
             name: context.repo.repo,
-            label: 'CI',
+            label: ${{ inputs.issue-label }},
             creator: "github-actions[bot]"
           }
           const result = await github.graphql(query, variables)
