@@ -36,6 +36,7 @@ class SessionFinish:
 
 @dataclass
 class PreformattedReport:
+    filepath: str
     name: str
     variant: str | None
     message: str
@@ -55,7 +56,7 @@ def parse_record(record):
     return cls._from_json(record)
 
 
-nodeid_re = re.compile(r"(?P<name>.+?)(?:\[(?P<variant>.+)\])?")
+nodeid_re = re.compile(r"(?P<filepath>.+)::(?P<name>.+?)(?:\[(?P<variant>.+)\])?")
 
 
 def parse_nodeid(nodeid):
@@ -68,7 +69,8 @@ def parse_nodeid(nodeid):
 
 @functools.singledispatch
 def preformat_report(report):
-    return PreformattedReport(name=report.nodeid, variant=None, message=str(report))
+    parsed = parse_nodeid(report.nodeid)
+    return PreformattedReport(message=str(report), **parsed)
 
 
 @preformat_report.register
@@ -86,8 +88,10 @@ def _(report: CollectReport):
 
 
 def format_summary(report):
-    variant = f"[{report.variant}]" if report.variant is not None else ""
-    return f"{report.name}{variant}: {report.message}"
+    if report.variant is not None:
+        return f"{report.filepath}::{report.name}[{report.variant}]: {report.message}"
+    else:
+        return f"{report.filepath}::{report.name}: {report.message}"
 
 
 def format_report(summaries, py_version):
