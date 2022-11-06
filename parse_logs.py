@@ -7,6 +7,7 @@ import re
 import textwrap
 from dataclasses import dataclass
 
+import more_itertools
 from pytest import CollectReport, TestReport
 
 
@@ -111,6 +112,24 @@ def format_report(summaries, py_version):
     return message
 
 
+def merge_variants(reports, max_chars, **formatter_kwargs):
+    def format_variant_group(name, group):
+        filepath, test_name, message = name
+
+        n_variants = len(group)
+        if n_variants != 0:
+            return f"{filepath}::{test_name}[{n_variants} failing variants]: {message}"
+        else:
+            return f"{filepath}::{test_name}: {message}"
+
+    bucket = more_itertools.bucket(reports, lambda r: (r.filepath, r.name, r.message))
+
+    summaries = [format_variant_group(name, list(bucket[name])) for name in bucket]
+    formatted = format_report(summaries, **formatter_kwargs)
+
+    return formatted
+
+
 def truncate(reports, max_chars, **formatter_kwargs):
     fractions = [0.95, 0.75, 0.5, 0.25, 0.1, 0.01]
 
@@ -133,7 +152,7 @@ def summarize(reports):
 
 def compressed_report(reports, max_chars, **formatter_kwargs):
     strategies = [
-        # merge_variants,
+        merge_variants,
         # merge_test_files,
         # merge_tests,
         truncate,
