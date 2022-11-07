@@ -3,9 +3,11 @@ import argparse
 import functools
 import json
 import pathlib
+import re
 import textwrap
 from dataclasses import dataclass
 
+import more_itertools
 from pytest import CollectReport, TestReport
 
 
@@ -33,6 +35,14 @@ class SessionFinish:
         return cls(**json_)
 
 
+@dataclass
+class PreformattedReport:
+    filepath: str
+    name: str
+    variant: str | None
+    message: str
+
+
 def parse_record(record):
     report_types = {
         "TestReport": TestReport,
@@ -47,27 +57,46 @@ def parse_record(record):
     return cls._from_json(record)
 
 
+nodeid_re = re.compile(r"(?P<filepath>.+)::(?P<name>.+?)(?:\[(?P<variant>.+)\])?")
+
+
+def parse_nodeid(nodeid):
+    match = nodeid_re.fullmatch(nodeid)
+    if match is None:
+        raise ValueError(f"unknown test id: {nodeid}")
+
+    return match.groupdict()
+
+
 @functools.singledispatch
-def format_summary(report):
-    return f"{report.nodeid}: {report}"
+def preformat_report(report):
+    parsed = parse_nodeid(report.nodeid)
+    return PreformattedReport(message=str(report), **parsed)
 
 
-@format_summary.register
+@preformat_report.register
 def _(report: TestReport):
+    parsed = parse_nodeid(report.nodeid)
     message = report.longrepr.chain[0][1].message
-    return f"{report.nodeid}: {message}"
+    return PreformattedReport(message=message, **parsed)
 
 
-@format_summary.register
+@preformat_report.register
 def _(report: CollectReport):
+    parsed = parse_nodeid(report.nodeid)
     message = report.longrepr.split("\n")[-1].removeprefix("E").lstrip()
-    return f"{report.nodeid}: {message}"
+    return PreformattedReport(message=message, **parsed)
 
 
-def format_report(reports, py_version):
-    newline = "\n"
-    summaries = newline.join(format_summary(r) for r in reports)
-    message = textwrap.dedent(
+def format_summary(report):
+    if report.variant is not None:
+        return f"{report.filepath}::{report.name}[{report.variant}]: {report.message}"
+    else:
+        return f"{report.filepath}::{report.name}: {report.message}"
+
+
+def format_report(summaries, py_version):
+    template = textwrap.dedent(
         """\
         <details><summary>Python {py_version} Test Summary</summary>
 
@@ -77,8 +106,68 @@ def format_report(reports, py_version):
 
         </details>
         """
-    ).format(summaries=summaries, py_version=py_version)
+    )
+    # can't use f-strings because that would format *before* the dedenting
+    message = template.format(summaries="\n".join(summaries), py_version=py_version)
     return message
+
+
+def merge_variants(reports, max_chars, **formatter_kwargs):
+    def format_variant_group(name, group):
+        filepath, test_name, message = name
+
+        n_variants = len(group)
+        if n_variants != 0:
+            return f"{filepath}::{test_name}[{n_variants} failing variants]: {message}"
+        else:
+            return f"{filepath}::{test_name}: {message}"
+
+    bucket = more_itertools.bucket(reports, lambda r: (r.filepath, r.name, r.message))
+
+    summaries = [format_variant_group(name, list(bucket[name])) for name in bucket]
+    formatted = format_report(summaries, **formatter_kwargs)
+
+    return formatted
+
+
+def truncate(reports, max_chars, **formatter_kwargs):
+    fractions = [0.95, 0.75, 0.5, 0.25, 0.1, 0.01]
+
+    n_reports = len(reports)
+    for fraction in fractions:
+        n_selected = int(n_reports * fraction)
+        selected_reports = reports[: int(n_reports * fraction)]
+        report_messages = [format_summary(report) for report in selected_reports]
+        summary = report_messages + [f"+ {n_reports - n_selected} failing tests"]
+        formatted = format_report(summary, **formatter_kwargs)
+        if len(formatted) <= max_chars:
+            return formatted
+
+    return None
+
+
+def summarize(reports):
+    return f"{len(reports)} failing tests"
+
+
+def compressed_report(reports, max_chars, **formatter_kwargs):
+    strategies = [
+        merge_variants,
+        # merge_test_files,
+        # merge_tests,
+        truncate,
+    ]
+    summaries = [format_summary(report) for report in reports]
+    formatted = format_report(summaries, **formatter_kwargs)
+    if len(formatted) <= max_chars:
+        return formatted
+
+    for strategy in strategies:
+        formatted = strategy(reports, max_chars=max_chars, **formatter_kwargs)
+        if formatted is not None and len(formatted) <= max_chars:
+            return formatted
+
+    return summarize(reports)
 
 
 if __name__ == "__main__":
@@ -94,8 +183,9 @@ if __name__ == "__main__":
     reports = [parse_record(json.loads(line)) for line in lines]
 
     failed = [report for report in reports if report.outcome == "failed"]
+    preformatted = [preformat_report(report) for report in failed]
 
-    message = format_report(failed, py_version=py_version)
+    message = compressed_report(preformatted, max_chars=65535, py_version=py_version)
 
     output_file = pathlib.Path("pytest-logs.txt")
     print(f"Writing output file to: {output_file.absolute()}")
