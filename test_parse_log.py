@@ -1,4 +1,5 @@
 import re
+import sys
 
 import hypothesis.strategies as st
 from hypothesis import given, note
@@ -37,3 +38,12 @@ def test_parse_nodeid(path, name, variant):
     actual = parse_logs.parse_nodeid(nodeid)
 
     assert actual == expected
+
+
+@given(st.lists(preformatted_reports()), st.integers(min_value=0))
+def test_truncate(reports, max_chars):
+    py_version = ".".join(str(part) for part in sys.version_info[:3])
+
+    formatted = parse_logs.truncate(reports, max_chars=max_chars, py_version=py_version)
+
+    assert formatted is None or len(formatted) <= max_chars
