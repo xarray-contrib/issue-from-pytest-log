@@ -57,7 +57,7 @@ def parse_record(record):
     return cls._from_json(record)
 
 
-nodeid_re = re.compile(r"(?P<filepath>.+)::(?P<name>.+?)(?:\[(?P<variant>.+)\])?")
+nodeid_re = re.compile(r"(?P<filepath>.+?)::(?P<name>.+?)(?:\[(?P<variant>.+)\])?")
 
 
 def parse_nodeid(nodeid):
