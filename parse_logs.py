@@ -4,6 +4,7 @@ import functools
 import json
 import pathlib
 import re
+import sys
 import textwrap
 from dataclasses import dataclass
 
@@ -176,7 +177,7 @@ if __name__ == "__main__":
     parser.add_argument("filepath", type=pathlib.Path)
     args = parser.parse_args()
 
-    py_version = args.filepath.stem.split("-")[1]
+    py_version = ".".join(str(_) for _ in sys.version_info[:2])
 
     print("Parsing logs ...")
 
