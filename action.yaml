@@ -32,7 +32,9 @@ runs:
     - name: print the json log
       shell: bash
       run: |
+        echo "::group::json log"
         cat ${{ inputs.log-path }}
+        echo "::endgroup::"
     - name: produce the issue body
       shell: bash
       run: |
