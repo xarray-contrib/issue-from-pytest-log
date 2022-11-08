@@ -29,6 +29,9 @@ runs:
       shell: bash
       run: |
         python -m pip install pytest more-itertools
+    - name: print the json log
+      run: |
+        cat ${{ inputs.log-path }}
     - name: produce the issue body
       shell: bash
       run: |
