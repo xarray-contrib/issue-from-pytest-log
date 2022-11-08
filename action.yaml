@@ -25,10 +25,21 @@ runs:
   using: composite
   # TODO: learn enough javascript / node.js to write the reportlog parsing
   steps:
+    - name: print environment information
+      shell: bash
+      run: |
+        python --version
+        python -m pip list
     - name: install dependencies
       shell: bash
       run: |
-        python -m pip install pytest
+        python -m pip install pytest more-itertools
+    - name: print the json log
+      shell: bash
+      run: |
+        echo "::group::json log"
+        cat ${{ inputs.log-path }}
+        echo "::endgroup::"
     - name: produce the issue body
       shell: bash
       run: |

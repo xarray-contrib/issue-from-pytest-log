@@ -4,6 +4,7 @@ import functools
 import json
 import pathlib
 import re
+import sys
 import textwrap
 from dataclasses import dataclass
 
@@ -146,8 +147,9 @@ def truncate(reports, max_chars, **formatter_kwargs):
     return None
 
 
-def summarize(reports):
-    return f"{len(reports)} failing tests"
+def summarize(reports, **formatter_kwargs):
+    summary = [f"{len(reports)} failing tests"]
+    return format_report(summary, **formatter_kwargs)
 
 
 def compressed_report(reports, max_chars, **formatter_kwargs):
@@ -167,7 +169,7 @@ def compressed_report(reports, max_chars, **formatter_kwargs):
         if formatted is not None and len(formatted) <= max_chars:
             return formatted
 
-    return summarize(reports)
+    return summarize(reports, **formatter_kwargs)
 
 
 if __name__ == "__main__":
@@ -175,7 +177,7 @@ if __name__ == "__main__":
     parser.add_argument("filepath", type=pathlib.Path)
     args = parser.parse_args()
 
-    py_version = args.filepath.stem.split("-")[1]
+    py_version = ".".join(str(_) for _ in sys.version_info[:2])
 
     print("Parsing logs ...")
 
