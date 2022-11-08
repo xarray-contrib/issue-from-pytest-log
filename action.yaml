@@ -30,6 +30,7 @@ runs:
       run: |
         python -m pip install pytest more-itertools
     - name: print the json log
+      shell: bash
       run: |
         cat ${{ inputs.log-path }}
     - name: produce the issue body
