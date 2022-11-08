@@ -26,16 +26,16 @@ runs:
   # TODO: learn enough javascript / node.js to write the reportlog parsing
   steps:
     - name: print environment information
-      shell: bash
+      shell: bash -l {0}
       run: |
         python --version
         python -m pip list
     - name: install dependencies
-      shell: bash
+      shell: bash -l {0}
       run: |
         python -m pip install pytest more-itertools
     - name: produce the issue body
-      shell: bash
+      shell: bash -l {0}
       run: |
         python $GITHUB_ACTION_PATH/parse_logs.py ${{ inputs.log-path }}
     - name: create the issue
