@@ -147,7 +147,7 @@ def truncate(reports, max_chars, **formatter_kwargs):
 
 
 def summarize(reports, **formatter_kwargs):
-    summary = f"{len(reports)} failing tests"
+    summary = [f"{len(reports)} failing tests"]
     return format_report(summary, **formatter_kwargs)
 
 
