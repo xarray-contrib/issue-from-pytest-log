@@ -187,7 +187,7 @@ if __name__ == "__main__":
     failed = [report for report in reports if report.outcome == "failed"]
     preformatted = [preformat_report(report) for report in failed]
 
-    message = compressed_report(preformatted, max_chars=200, py_version=py_version)
+    message = compressed_report(preformatted, max_chars=400, py_version=py_version)
 
     output_file = pathlib.Path("pytest-logs.txt")
     print(f"Writing output file to: {output_file.absolute()}")
