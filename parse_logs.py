@@ -11,6 +11,8 @@ from dataclasses import dataclass
 import more_itertools
 from pytest import CollectReport, TestReport
 
+test_collection_stage = "test collection session"
+
 
 @dataclass
 class SessionStart:
@@ -42,6 +44,12 @@ class PreformattedReport:
     name: str
     variant: str | None
     message: str
+
+
+@dataclass
+class CollectionError:
+    name: str
+    repr_: str
 
 
 def parse_record(record):
@@ -84,6 +92,9 @@ def _(report: TestReport):
 
 @preformat_report.register
 def _(report: CollectReport):
+    if report.nodeid == "":
+        return CollectionError(name=test_collection_stage, repr_=str(report.longrepr))
+
     parsed = parse_nodeid(report.nodeid)
     message = report.longrepr.split("\n")[-1].removeprefix("E").lstrip()
     return PreformattedReport(message=message, **parsed)
@@ -172,6 +183,21 @@ def compressed_report(reports, max_chars, **formatter_kwargs):
     return summarize(reports, **formatter_kwargs)
 
 
+def format_collection_error(error, **formatter_kwargs):
+    return textwrap.dedent(
+        """\
+        <details><summary>Python {py_version} Test Summary</summary>
+
+        {name} failed:
+        ```
+        {traceback}
+        ```
+
+        </details>
+        """
+    ).format(py_version=py_version, name=error.name, traceback=error.repr_)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filepath", type=pathlib.Path)
@@ -186,8 +212,12 @@ if __name__ == "__main__":
 
     failed = [report for report in reports if report.outcome == "failed"]
     preformatted = [preformat_report(report) for report in failed]
-
-    message = compressed_report(preformatted, max_chars=65535, py_version=py_version)
+    if len(preformatted) == 1 and isinstance(preformatted[0], CollectionError):
+        message = format_collection_error(preformatted[0], py_version=py_version)
+    else:
+        message = compressed_report(
+            preformatted, max_chars=65535, py_version=py_version
+        )
 
     output_file = pathlib.Path("pytest-logs.txt")
     print(f"Writing output file to: {output_file.absolute()}")
