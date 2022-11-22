@@ -129,8 +129,11 @@ def merge_variants(reports, max_chars, **formatter_kwargs):
         filepath, test_name, message = name
 
         n_variants = len(group)
-        if n_variants != 0:
+        if n_variants != 1:
             return f"{filepath}::{test_name}[{n_variants} failing variants]: {message}"
+        elif n_variants == 1 and group[0].variant is not None:
+            report = more_itertools.one(group)
+            return f"{filepath}::{test_name}[{report.variant}]: {message}"
         else:
             return f"{filepath}::{test_name}: {message}"
 
