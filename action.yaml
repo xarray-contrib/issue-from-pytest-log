@@ -18,8 +18,8 @@ inputs:
     default: "CI"
 outputs: {}
 branding:
-  color: 'red'
-  icon: 'alert-triangle'
+  color: "red"
+  icon: "alert-triangle"
 
 runs:
   using: composite
