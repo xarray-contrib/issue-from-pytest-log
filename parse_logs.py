@@ -86,7 +86,10 @@ def preformat_report(report):
 @preformat_report.register
 def _(report: TestReport):
     parsed = parse_nodeid(report.nodeid)
-    message = report.longrepr.chain[0][1].message
+    if isinstance(report.longrepr, str):
+        message = report.longrepr
+    else:
+        message = report.longrepr.chain[0][1].message
     return PreformattedReport(message=message, **parsed)
 
 
