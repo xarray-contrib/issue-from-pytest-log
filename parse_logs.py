@@ -98,8 +98,19 @@ def _(report: CollectReport):
     if report.nodeid == "":
         return CollectionError(name=test_collection_stage, repr_=str(report.longrepr))
 
-    parsed = parse_nodeid(report.nodeid)
-    message = report.longrepr.split("\n")[-1].removeprefix("E").lstrip()
+    if "::" not in report.nodeid:
+        parsed = {
+            "filepath": report.nodeid,
+            "name": None,
+            "variant": None,
+        }
+    else:
+        parsed = parse_nodeid(report.nodeid)
+
+    if isinstance(report.longrepr, str):
+        message = report.longrepr.split("\n")[-1].removeprefix("E").lstrip()
+    else:
+        message = report.longrepr.chain[0][1].message
     return PreformattedReport(message=message, **parsed)
 
 
