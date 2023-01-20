@@ -117,8 +117,10 @@ def _(report: CollectReport):
 def format_summary(report):
     if report.variant is not None:
         return f"{report.filepath}::{report.name}[{report.variant}]: {report.message}"
-    else:
+    elif report.name is not None:
         return f"{report.filepath}::{report.name}: {report.message}"
+    else:
+        return f"{report.filepath}: {report.message}"
 
 
 def format_report(summaries, py_version):
