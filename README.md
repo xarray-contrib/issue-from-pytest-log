@@ -49,7 +49,10 @@ jobs:
         log-path: pytest-log.jsonl
 ```
 
-See [this repository](https://github.com/keewis/reportlog-test/issues) for example issues, and the [xarray](https://github.com/pydata/xarray/issues) and [dask](https://github.com/dask/dask/issues) issue trackers for real-world usage and more realistic examples.
+See [this repository](https://github.com/keewis/reportlog-test/issues) for example issues. For more realistic examples, see
+
+- `xarray` ([workflow](https://github.com/pydata/xarray/blob/main/.github/workflows/upstream-dev-ci.yaml), [example issue](https://github.com/pydata/xarray/issues/6197))
+- `dask` ([workflow](https://github.com/dask/dask/blob/main/.github/workflows/upstream.yml), [example issue](https://github.com/dask/dask/issues/10347))
 
 ## Options
 
