@@ -1,6 +1,14 @@
 # issue-from-pytest-log
 
-Create or update an issue for failed tests from a [pytest-reportlog](https://github.com/pytest-dev/pytest-reportlog) file.
+Create an issue for failed tests from a [pytest-reportlog](https://github.com/pytest-dev/pytest-reportlog) file or update an existing one if it already exists.
+
+How this works:
+
+1. `pytest-reportlog` writes a complete and machine-readable log of failed tests.
+2. The action extracts the failed tests and creates a report while making sure that it fits into the character limits of github issue forms.
+3. The action looks for existing open issues with the configured title and label
+   a. if one exists: replace the old description with the report
+   b. if there is none: open a new issue and insert the report
 
 ## Usage
 
