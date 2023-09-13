@@ -1,6 +1,6 @@
 # issue-from-pytest-log
 
-Create or update an issue for failed tests from a pytest-reportlog file.
+Create or update an issue for failed tests from a [pytest-reportlog](https://github.com/pytest-dev/pytest-reportlog) file.
 
 ## Usage
 
@@ -20,6 +20,16 @@ jobs:
       with:
         python-version: "3.11"
         cache: pip
+
+    ...
+
+    - run: <
+        pip install --upgrade pytest-reportlog
+
+    ...
+
+    - run: <
+        pytest --report-log pytest-log.jsonl
 
     ...
 
