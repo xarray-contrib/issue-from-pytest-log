@@ -52,7 +52,7 @@ jobs:
 See [this repository](https://github.com/keewis/reportlog-test/issues) for example issues. For more realistic examples, see
 
 - `xarray` ([workflow](https://github.com/pydata/xarray/blob/main/.github/workflows/upstream-dev-ci.yaml), [example issue](https://github.com/pydata/xarray/issues/6197))
-- `dask` ([workflow](https://github.com/dask/dask/blob/main/.github/workflows/upstream.yml), [example issue](https://github.com/dask/dask/issues/10347))
+- `dask` ([workflow](https://github.com/dask/dask/blob/main/.github/workflows/upstream.yml), [example issue](https://github.com/dask/dask/issues/10089))
 
 ## Options
 
