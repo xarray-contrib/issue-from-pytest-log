@@ -227,7 +227,12 @@ if __name__ == "__main__":
     print("Parsing logs ...")
 
     lines = args.filepath.read_text().splitlines()
-    reports = [parse_record(json.loads(line)) for line in lines]
+    parsed_lines = [json.loads(line) for line in lines]
+    reports = [
+        parse_record(data)
+        for data in parsed_lines
+        if data["$report_type"] != "WarningMessage"
+    ]
 
     failed = [report for report in reports if report.outcome == "failed"]
     preformatted = [preformat_report(report) for report in failed]
