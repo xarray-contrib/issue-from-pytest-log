@@ -89,7 +89,7 @@ def _(report: TestReport):
     if isinstance(report.longrepr, str):
         message = report.longrepr
     else:
-        message = report.longrepr.chain[0][1].message
+        message = report.longrepr.reprcrash.message
     return PreformattedReport(message=message, **parsed)
 
 
@@ -110,7 +110,7 @@ def _(report: CollectReport):
     if isinstance(report.longrepr, str):
         message = report.longrepr.split("\n")[-1].removeprefix("E").lstrip()
     else:
-        message = report.longrepr.chain[0][1].message
+        message = report.longrepr.reprcrash.message
     return PreformattedReport(message=message, **parsed)
 
 
