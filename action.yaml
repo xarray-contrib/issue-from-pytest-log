@@ -18,7 +18,8 @@ inputs:
     default: "CI"
   assignees:
     description: >-
-      Comma-separated users to assign to the issue.
+      Comma-separated users to assign to the issue (no spaces). All assigned users have to
+      have commit rights.
     required: false
     default: ""
 outputs: {}
