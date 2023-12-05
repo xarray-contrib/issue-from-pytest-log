@@ -86,7 +86,7 @@ runs:
               body: issue_body,
               title: title,
               labels: [variables.label],
-              assignees: ${{ inputs.assignees.split(',') }}
+              assignees: ${{ inputs.assignees }}.split(',')
             })
           } else {
             github.rest.issues.update({
