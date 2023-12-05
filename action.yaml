@@ -16,6 +16,11 @@ inputs:
       Labels to apply to issue
     required: false
     default: "CI"
+  assignees:
+    description: >-
+      Users to assign to the issue
+    required: false
+    default: []
 outputs: {}
 branding:
   color: "red"
@@ -80,7 +85,8 @@ runs:
               repo: variables.name,
               body: issue_body,
               title: title,
-              labels: [variables.label]
+              labels: [variables.label],
+              assignees: ${{ inputs.assignees }}
             })
           } else {
             github.rest.issues.update({
