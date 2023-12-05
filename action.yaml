@@ -18,9 +18,9 @@ inputs:
     default: "CI"
   assignees:
     description: >-
-      Users to assign to the issue
+      Comma-separated users to assign to the issue.
     required: false
-    default: []
+    default: ""
 outputs: {}
 branding:
   color: "red"
@@ -86,7 +86,7 @@ runs:
               body: issue_body,
               title: title,
               labels: [variables.label],
-              assignees: ${{ inputs.assignees }}
+              assignees: ${{ inputs.assignees.split(',') }}
             })
           } else {
             github.rest.issues.update({
