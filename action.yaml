@@ -51,20 +51,22 @@ runs:
         script: |
           const fs = require('fs');
           const pytest_logs = fs.readFileSync('pytest-logs.txt', 'utf8');
-          const title = "${{ inputs.issue-title }}"
-          const assignees = "${{inputs.assignees}}".split(",")
-          const workflow_url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
-          const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`
+          const title = "${{ inputs.issue-title }}";
+          const assignees = "${{inputs.assignees}}".split(",");
+          const workflow_url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+          const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`;
 
           // Run GraphQL query against GitHub API to find the most recent open issue used for reporting failures
+          // This finds the issue based on the title, so if that changes, a new issue will be created.
           const query = `query($owner:String!, $name:String!, $creator:String!, $label:String!){
             repository(owner: $owner, name: $name) {
-              issues(first: 1, states: OPEN, filterBy: {createdBy: $creator, labels: [$label]}, orderBy: {field: CREATED_AT, direction: DESC}) {
+              issues(first: 100, states: OPEN, filterBy: {createdBy: $creator, labels: [$label]}, orderBy: {field: CREATED_AT, direction: DESC}) {
                 edges {
                   node {
                     body
                     id
                     number
+                    title
                   }
                 }
               }
@@ -76,12 +78,14 @@ runs:
             name: context.repo.repo,
             label: "${{ inputs.issue-label }}",
             creator: "github-actions[bot]"
-          }
-          const result = await github.graphql(query, variables)
+          };
 
-          // If no issue is open, create a new issue,
-          // else update the body of the existing issue.
-          if (result.repository.issues.edges.length === 0) {
+          const result = await github.graphql(query, variables);
+          let existingIssue = result.repository.issues.edges.find(edge => edge.node.title === title);
+
+          // If no issue is found to be open, or if found issue's title doesn't match,
+          // then we create a new issue. Else, we update the body of the existing issue.
+          if (!existingIssue) {
             github.rest.issues.create({
               owner: variables.owner,
               repo: variables.name,
@@ -89,12 +93,13 @@ runs:
               title: title,
               labels: [variables.label],
               assignees: assignees
-            })
+            });
           } else {
+            // Update the body of the existing issue
             github.rest.issues.update({
               owner: variables.owner,
               repo: variables.name,
-              issue_number: result.repository.issues.edges[0].node.number,
+              issue_number: existingIssue.node.number,
               body: issue_body
-            })
+            });
           }
