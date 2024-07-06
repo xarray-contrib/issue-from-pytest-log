@@ -75,6 +75,7 @@ runs:
             owner: context.repo.owner,
             name: context.repo.repo,
             label: "${{ inputs.issue-label }}",
+            title: "${{ inputs.issue-title }}",
             creator: "github-actions[bot]"
           }
           const result = await github.graphql(query, variables)
