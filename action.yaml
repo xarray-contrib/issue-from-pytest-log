@@ -74,8 +74,7 @@ runs:
           }`;
           const owner = context.repo.owner;
           const name = context.repo.repo;
-          const label = "${{ input.issue-label }}";
-          const title = "${{ input.issue-title }}";
+          const label = "${{ inputs.issue-label }}";
           const creator = "app/github-actions";
 
           const variables = {
