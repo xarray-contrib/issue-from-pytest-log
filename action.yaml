@@ -78,7 +78,7 @@ runs:
           const creator = "app/github-actions";
 
           const variables = {
-            query: `repo:${owner}/${name} author:${creator} label:${label} is:open in:title ${title}`;
+            query: `repo:${owner}/${name} author:${creator} label:${label} is:open in:title ${title}`
           }
           const result = await github.graphql(query, variables)
 
