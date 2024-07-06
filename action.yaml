@@ -58,14 +58,12 @@ runs:
 
           // Run GraphQL query against GitHub API to find the most recent open issue used for reporting failures
           const query = `query($owner:String!, $name:String!, $creator:String!, $title:String!, $label:String!){
-            repository(owner: $owner, name: $name) {
-              issues(first: 1, states: OPEN, filterBy: {createdBy: $creator, labels: [$label], title: $title}, orderBy: {field: CREATED_AT, direction: DESC}) {
-                edges {
-                  node {
-                    body
-                    id
-                    number
-                  }
+            search(query: "repo:$owner/$name author:$creator label:$label in:title $title", type:ISSUE, first: 1) {
+              edges {
+                node {
+                  body
+                  id
+                  number
                 }
               }
             }
@@ -76,7 +74,7 @@ runs:
             name: context.repo.repo,
             label: "${{ inputs.issue-label }}",
             title: "${{ inputs.issue-title }}",
-            creator: "github-actions[bot]"
+            creator: "app/github-actions"
           }
           const result = await github.graphql(query, variables)
 
