@@ -82,20 +82,20 @@ runs:
 
           // If no issue is open, create a new issue,
           // else update the body of the existing issue.
-          if (result.repository.issues.edges.length === 0) {
+          if (result.search.edges.length === 0) {
             github.rest.issues.create({
-              owner: variables.owner,
-              repo: variables.name,
+              owner: owner,
+              repo: name,
               body: issue_body,
               title: title,
-              labels: [variables.label],
+              labels: [label],
               assignees: assignees
             })
           } else {
             github.rest.issues.update({
-              owner: variables.owner,
-              repo: variables.name,
-              issue_number: result.repository.issues.edges[0].node.number,
+              owner: owner,
+              repo: name,
+              issue_number: result.search.edges[0].node.number,
               body: issue_body
             })
           }
