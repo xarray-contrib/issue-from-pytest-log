@@ -60,8 +60,8 @@ runs:
           const query = `query($owner:String!, $name:String!, $creator:String!, $title:String!, $label:String!){
             const query = `repo:${owner}/${name} author:${creator} label:${label} is:open in:title ${title}`;
 
-            {
-              search(query: "repo:$owner/$name author:$creator label:$label in:title is:open $title", type:ISSUE, first: 1) {
+            query {
+              search(query: $query, type:ISSUE, first: 1) {
                 edges {
                   node {
                     ... on Issue {
