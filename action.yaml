@@ -79,7 +79,7 @@ runs:
             creator: "app/github-actions",
             title: "${{ inputs.issue-title }}"
           }
-          const result = await github.graphql(query, variables)
+          const result = await github.graphql(query, variables);
 
           // If no issue is open, create a new issue,
           // else update the body of the existing issue.
@@ -91,12 +91,12 @@ runs:
               title: title,
               labels: [label],
               assignees: assignees
-            })
+            });
           } else {
             github.rest.issues.update({
               owner: owner,
               repo: name,
               issue_number: result.search.edges[0].node.number,
               body: issue_body
-            })
+            });
           }
