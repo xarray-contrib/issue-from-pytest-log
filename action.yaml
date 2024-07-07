@@ -8,7 +8,8 @@ inputs:
     required: true
   issue-title:
     description: >-
-      Title of issue being created or updated
+      Title of issue being created or updated. Can be a parametrized string, in which case
+      a new issue will be opened for all variations.
     required: false
     default: "⚠️ Nightly upstream-dev CI failed ⚠️"
   issue-label:
@@ -51,17 +52,25 @@ runs:
         script: |
           const fs = require('fs');
           const pytest_logs = fs.readFileSync('pytest-logs.txt', 'utf8');
-          const title = "${{ inputs.issue-title }}"
-          const assignees = "${{inputs.assignees}}".split(",")
-          const workflow_url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
-          const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`
+          const assignees = "${{inputs.assignees}}".split(",");
+          const workflow_url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+          const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`;
+
+          const variables = {
+            owner: context.repo.owner,
+            name: context.repo.repo,
+            label: "${{ inputs.issue-label }}",
+            creator: "app/github-actions",
+            title: "${{ inputs.issue-title }}"
+          };
+          const query_string = `repo:${variables.owner}/${variables.name} author:${variables.creator} label:${variables.label} is:open in:title ${variables.title}`;
 
           // Run GraphQL query against GitHub API to find the most recent open issue used for reporting failures
-          const query = `query($owner:String!, $name:String!, $creator:String!, $label:String!){
-            repository(owner: $owner, name: $name) {
-              issues(first: 1, states: OPEN, filterBy: {createdBy: $creator, labels: [$label]}, orderBy: {field: CREATED_AT, direction: DESC}) {
-                edges {
-                  node {
+          const query = `query {
+            search(query: "${query_string}", type:ISSUE, first: 1) {
+              edges {
+                node {
+                  ... on Issue {
                     body
                     id
                     number
@@ -71,30 +80,24 @@ runs:
             }
           }`;
 
-          const variables = {
-            owner: context.repo.owner,
-            name: context.repo.repo,
-            label: "${{ inputs.issue-label }}",
-            creator: "github-actions[bot]"
-          }
-          const result = await github.graphql(query, variables)
+          const result = await github.graphql(query);
 
           // If no issue is open, create a new issue,
           // else update the body of the existing issue.
-          if (result.repository.issues.edges.length === 0) {
+          if (result.search.edges.length === 0) {
             github.rest.issues.create({
               owner: variables.owner,
               repo: variables.name,
               body: issue_body,
-              title: title,
+              title: variables.title,
               labels: [variables.label],
               assignees: assignees
-            })
+            });
           } else {
             github.rest.issues.update({
               owner: variables.owner,
               repo: variables.name,
-              issue_number: result.repository.issues.edges[0].node.number,
+              issue_number: result.search.edges[0].node.number,
               body: issue_body
-            })
+            });
           }
