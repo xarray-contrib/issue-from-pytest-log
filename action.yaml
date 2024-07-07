@@ -56,9 +56,18 @@ runs:
           const workflow_url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
           const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`;
 
+          const variables = {
+            owner: context.repo.owner,
+            name: context.repo.repo,
+            label: "${{ inputs.issue-label }}",
+            creator: "app/github-actions",
+            title: "${{ inputs.issue-title }}"
+          };
+          const query_string = `repo:${variables.owner}/${variables.name} author:${variables.creator} label:${variables.label} in:title ${variables.title}`;
+
           // Run GraphQL query against GitHub API to find the most recent open issue used for reporting failures
-          const query = `query($owner:String!, $name:String!, $creator:String!, $label:String!, $title:String!) {
-            search(query: "repo:$owner/$name author:$creator label:$label is:open in:title $title", type:ISSUE, first: 1) {
+          const query = `query {
+            search(query: ${query_string}, type:ISSUE, first: 1) {
               edges {
                 node {
                   ... on Issue {
@@ -71,14 +80,7 @@ runs:
             }
           }`;
 
-          const variables = {
-            owner: context.repo.owner,
-            name: context.repo.repo,
-            label: "${{ inputs.issue-label }}",
-            creator: "app/github-actions",
-            title: "${{ inputs.issue-title }}"
-          };
-          const result = await github.graphql(query, variables);
+          const result = await github.graphql(query);
 
           // If no issue is open, create a new issue,
           // else update the body of the existing issue.
