@@ -77,7 +77,7 @@ runs:
             label: "${{ inputs.issue-label }}",
             creator: "app/github-actions",
             title: "${{ inputs.issue-title }}"
-          }
+          };
           const result = await github.graphql(query, variables);
 
           // If no issue is open, create a new issue,
