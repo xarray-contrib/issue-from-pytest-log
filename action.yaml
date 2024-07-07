@@ -58,8 +58,8 @@ runs:
           const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`;
 
           // Run GraphQL query against GitHub API to find the most recent open issue used for reporting failures
-          const query = `query($value:String!) {
-            search(query: $value, type:ISSUE, first: 1) {
+          const query = `query($owner:String!, $name:String!, $creator:String!, $label:String!, $title:String!) {
+            search(query: "repo:${owner}/${name} author:${creator} label:${label} is:open in:title ${title}", type:ISSUE, first: 1) {
               edges {
                 node {
                   ... on Issue {
@@ -71,13 +71,13 @@ runs:
               }
             }
           }`;
-          const owner = context.repo.owner;
-          const name = context.repo.repo;
-          const label = "${{ inputs.issue-label }}";
-          const creator = "app/github-actions";
 
           const variables = {
-            value: `repo:${owner}/${name} author:${creator} label:${label} is:open in:title ${title}`
+            owner: context.repo.owner,
+            name: context.repo.repo,
+            label: "${{ inputs.issue-label }}";
+            creator: "app/github-actions",
+            title: "${{ inputs.issue-title }}"
           }
           const result = await github.graphql(query, variables)
 
