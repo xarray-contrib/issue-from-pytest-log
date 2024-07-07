@@ -8,7 +8,8 @@ inputs:
     required: true
   issue-title:
     description: >-
-      Title of issue being created or updated
+      Title of issue being created or updated. Can be a parametrized string, in which case
+      a new issue will be opened for all variations.
     required: false
     default: "⚠️ Nightly upstream-dev CI failed ⚠️"
   issue-label:

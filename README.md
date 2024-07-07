@@ -75,6 +75,8 @@ In case you don't like the default title for new issues, this setting can be use
     issue-title: "Nightly CI failed"
 ```
 
+The title can also be parametrized, in which case a separate issue will be opened for each variation of the title.
+
 ### issue label
 
 optional. Default: `CI`
