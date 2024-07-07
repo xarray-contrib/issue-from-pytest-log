@@ -52,10 +52,10 @@ runs:
         script: |
           const fs = require('fs');
           const pytest_logs = fs.readFileSync('pytest-logs.txt', 'utf8');
-          const title = "${{ inputs.issue-title }}"
-          const assignees = "${{inputs.assignees}}".split(",")
-          const workflow_url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
-          const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`
+          const title = "${{ inputs.issue-title }}";
+          const assignees = "${{inputs.assignees}}".split(",");
+          const workflow_url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+          const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`;
 
           // Run GraphQL query against GitHub API to find the most recent open issue used for reporting failures
           const query = `query($value:String!) {
