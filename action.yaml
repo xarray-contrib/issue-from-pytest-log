@@ -52,7 +52,6 @@ runs:
         script: |
           const fs = require('fs');
           const pytest_logs = fs.readFileSync('pytest-logs.txt', 'utf8');
-          const title = "${{ inputs.issue-title }}";
           const assignees = "${{inputs.assignees}}".split(",");
           const workflow_url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
           const issue_body = `[Workflow Run URL](${workflow_url})\n${pytest_logs}`;
@@ -85,17 +84,17 @@ runs:
           // else update the body of the existing issue.
           if (result.search.edges.length === 0) {
             github.rest.issues.create({
-              owner: owner,
-              repo: name,
+              owner: variables.owner,
+              repo: variables.name,
               body: issue_body,
-              title: title,
-              labels: [label],
+              title: variables.title,
+              labels: [variables.label],
               assignees: assignees
             });
           } else {
             github.rest.issues.update({
-              owner: owner,
-              repo: name,
+              owner: variables.owner,
+              repo: variables.name,
               issue_number: result.search.edges[0].node.number,
               body: issue_body
             });
