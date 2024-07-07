@@ -75,7 +75,7 @@ runs:
           const variables = {
             owner: context.repo.owner,
             name: context.repo.repo,
-            label: "${{ inputs.issue-label }}";
+            label: "${{ inputs.issue-label }}",
             creator: "app/github-actions",
             title: "${{ inputs.issue-title }}"
           }
