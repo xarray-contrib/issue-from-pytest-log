@@ -67,7 +67,7 @@ runs:
 
           // Run GraphQL query against GitHub API to find the most recent open issue used for reporting failures
           const query = `query {
-            search(query: ${query_string}, type:ISSUE, first: 1) {
+            search(query: "${query_string}", type:ISSUE, first: 1) {
               edges {
                 node {
                   ... on Issue {
