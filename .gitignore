@@ -1,2 +1,4 @@
 /.hypothesis/
 __pycache__/
+
+/.prettier_cache/
